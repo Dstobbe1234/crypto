@@ -16,29 +16,32 @@ class Window(QWidget):
         layout.addWidget(self.button)
         self.setLayout(layout)
         self.button.clicked.connect(self.createGraph)
-        self.x = [0]
+        self.x = 0
         self.timer = QtCore.QTimer()
         self.timer.setInterval(1000 * 5)
         self.timer.timeout.connect(self.plot)
         self.timer.start()
     def createGraph(self):
         currency = self.textbox.text()
-        self.graphs.append(Graph(currency))
+        self.graphs.append(Graph(currency, self.x))
     def plot(self):
         for graph in self.graphs:
             pen = pg.mkPen(color=(0, 255, 0))
             graph.getPrice()
-            graph.plot(self.x, graph.prices, pen=pen)
+            graph.plot(graph.x, graph.prices, pen=pen)
             self.setLayout(layout)
-        self.x.append(self.x[-1] + 1)
+        self.x+=1
 
             
             
 
 class Graph(PlotWidget):
-    def __init__(self, crypto):
+    def __init__(self, crypto, x):
         super(Graph, self).__init__()
         self.crypto = crypto
+        self.x = []
+        for n in range(x):
+            self.x.append(n)
         self.prices = []
         layout.addWidget(self)
         self.getPrice
