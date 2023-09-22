@@ -23,14 +23,17 @@ class Window(QWidget):
         self.timer.start()
     def createGraph(self):
         currency = self.textbox.text()
+        self.textbox.setText('')
         self.graphs.append(Graph(currency, self.x))
     def plot(self):
         for graph in self.graphs:
+            
+            graph.x.append(self.x)
             pen = pg.mkPen(color=(0, 255, 0))
             graph.getPrice()
             graph.plot(graph.x, graph.prices, pen=pen)
             self.setLayout(layout)
-            graph.x.append(graph.x[-1] + 1)
+            # graph.x.append(graph.x[-1] + 1)
             self.x+=1
 
             
@@ -40,13 +43,14 @@ class Graph(PlotWidget):
     def __init__(self, crypto, x):
         super(Graph, self).__init__()
         self.crypto = crypto
-        self.x = [x]
+        self.x = []
         self.prices = []
+        self.setTitle(self.crypto, color='orange', size="10pt")
         layout.addWidget(self)
         self.getPrice
     def getPrice (self): 
         url = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest'
-        parameters = { 'slug': 'ethereum', 'convert': 'USD' } 
+        parameters = { 'slug': self.crypto, 'convert': 'USD' } 
 
         headers = {
             'Accepts': 'application/json',
@@ -54,8 +58,7 @@ class Graph(PlotWidget):
         }
         session.headers.update(headers) 
         response = session.get(url, params=parameters) 
-        price = (response.json().get("data").get(list(response.json().keys())[0])).get("quote").get("USD").get("price")
-        print(price)
+        price = response.json().get('data').get(list(response.json().get('data').keys())[0]).get('quote').get('USD').get('price')
         self.prices.append(price)
 
 session = Session() 
