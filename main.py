@@ -22,9 +22,9 @@ class Window(QWidget):
         self.timer.timeout.connect(self.plot)
         self.timer.start()
     def createGraph(self):
-        currency = self.textbox.text()
+        slug = self.textbox.text()
         self.textbox.setText('')
-        self.graphs.append(Graph(currency, self.x))
+        self.graphs.append(Graph(slug))
     def plot(self):
         for graph in self.graphs:
             
@@ -33,16 +33,15 @@ class Window(QWidget):
             graph.getPrice()
             graph.plot(graph.x, graph.prices, pen=pen)
             self.setLayout(layout)
-            # graph.x.append(graph.x[-1] + 1)
-            self.x+=1
+        self.x+=1
 
             
             
 
 class Graph(PlotWidget):
-    def __init__(self, crypto, x):
+    def __init__(self, slug):
         super(Graph, self).__init__()
-        self.crypto = crypto
+        self.slug = slug
         self.x = []
         self.prices = []
         self.setTitle(self.crypto, color='orange', size="10pt")
@@ -50,7 +49,7 @@ class Graph(PlotWidget):
         self.getPrice
     def getPrice (self): 
         url = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest'
-        parameters = { 'slug': self.crypto, 'convert': 'USD' } 
+        parameters = { 'slug': self.slug, 'convert': 'USD' } 
 
         headers = {
             'Accepts': 'application/json',
