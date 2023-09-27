@@ -4,8 +4,11 @@ from PyQt5 import QtCore
 from pyqtgraph import PlotWidget, plot
 import pyqtgraph as pg
 import sys  
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QVBoxLayout, QLineEdit
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QVBoxLayout, QLineEdit, QLabel
 
+
+
+##Subclass QWidget created to make slot functions to handle timout signal
 class Window(QWidget):
     def __init__(self,parent=None):
         super(Window, self).__init__(parent)
@@ -19,7 +22,7 @@ class Window(QWidget):
         self.x = 0
         self.timer = QtCore.QTimer()
         self.timer.setInterval(1000 * 5)
-        self.timer.timeout.connect(self.plot)
+        self.timer.timeout.connect(self.plot, )
         self.timer.start()
     def createGraph(self):
         slug = self.textbox.text()
@@ -33,18 +36,17 @@ class Window(QWidget):
             graph.getPrice()
             graph.plot(graph.x, graph.prices, pen=pen)
             self.setLayout(layout)
-        self.x+=1
-
-            
-            
-
+            if len(self.graphs) > 0:
+                self.x+=1
+##TODO: CHANGE NAME FROM GRAPH TO CRYPTO
 class Graph(PlotWidget):
     def __init__(self, slug):
         super(Graph, self).__init__()
         self.slug = slug
         self.x = []
         self.prices = []
-        self.setTitle(self.crypto, color='orange', size="10pt")
+        ##DO THIS STUFF IN MAIN CLASS
+        self.setTitle(self.slug, color='orange', size="10pt")
         layout.addWidget(self)
         self.getPrice
     def getPrice (self): 
@@ -59,6 +61,9 @@ class Graph(PlotWidget):
         response = session.get(url, params=parameters) 
         price = response.json().get('data').get(list(response.json().get('data').keys())[0]).get('quote').get('USD').get('price')
         self.prices.append(price)
+
+
+
 
 session = Session() 
 layout = QVBoxLayout()
