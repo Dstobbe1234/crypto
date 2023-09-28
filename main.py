@@ -12,42 +12,48 @@ from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QVBoxLayout, QLi
 class Window(QWidget):
     def __init__(self,parent=None):
         super(Window, self).__init__(parent)
+        self.crypto = []
         self.graphs = []
+        self.labels = []
         self.textbox = QLineEdit(self)
         self.button = QPushButton('SEARCH', self)
         layout.addWidget(self.textbox)
         layout.addWidget(self.button)
         self.setLayout(layout)
-        self.button.clicked.connect(self.createGraph)
+        self.button.clicked.connect(self.add)
         self.x = 0
         self.timer = QtCore.QTimer()
         self.timer.setInterval(1000 * 5)
         self.timer.timeout.connect(self.plot, )
         self.timer.start()
-    def createGraph(self):
+    def add(self):
         slug = self.textbox.text()
         self.textbox.setText('')
-        self.graphs.append(Graph(slug))
+        self.crypto.append(Crypto(slug))
+        newGraph = PlotWidget()
+        newGraph.setTitle(slug, color='orange', size="10pt")
+        layout.addWidget(newGraph)
+        self.graphs.append(newGraph)
+        print(self.crypto[0].prices)
+        newLabel = QLabel(f'{slug}: (price: {self.crypto[-1].prices[0]})')
+        layout.addWidget(newLabel)
+        self.labels.append(newLabel)
     def plot(self):
-        for graph in self.graphs:
+        for i in range(len(self.crypto)):
             
-            graph.x.append(self.x)
+            self.crypto[i].x.append(self.x)
             pen = pg.mkPen(color=(0, 255, 0))
-            graph.getPrice()
-            graph.plot(graph.x, graph.prices, pen=pen)
+            self.crypto[i].getPrice()
+            self.graphs[i].plot(self.crypto[i].x, self.crypto[i].prices, pen=pen)
+            self.labels[i].text = f'{self.crypto[i].slug}: (price: {self.crypto[i].prices[-1]})'
             self.setLayout(layout)
             if len(self.graphs) > 0:
                 self.x+=1
-##TODO: CHANGE NAME FROM GRAPH TO CRYPTO
-class Graph(PlotWidget):
+class Crypto:
     def __init__(self, slug):
-        super(Graph, self).__init__()
         self.slug = slug
         self.x = []
         self.prices = []
-        ##DO THIS STUFF IN MAIN CLASS
-        self.setTitle(self.slug, color='orange', size="10pt")
-        layout.addWidget(self)
         self.getPrice
     def getPrice (self): 
         url = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest'
